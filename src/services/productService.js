@@ -1,7 +1,7 @@
 // Database related tasks
 import Product from "../models/Product.js";
 import uploadFile from "../utils/file.js";
-import promptGemini from "../utils/gemini.js";
+// import promptGemini from "../utils/gemini.js";
 import { formatProductData } from "../helpers/dataFormatter.js";
 
 // 1. Sort: {fieldName:ORDER} for e.g {price: -1} 1: ASC | -1: DESC
@@ -49,11 +49,11 @@ const getProductById = async (id) => {
 const createProduct = async (data, files, userId) => {
   const uploadedFiles = await uploadFile(files);
 
-  const geminiResponse = await promptGemini(data);
+  // const geminiResponse = await promptGemini(data);
 
   return await Product.create({
     ...data,
-    description: geminiResponse,
+    // description: geminiResponse,
     createdBy: userId,
     imageUrls: uploadedFiles?.map((item) => item?.url),
   });
