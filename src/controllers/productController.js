@@ -37,17 +37,47 @@ const getProductById = async (req, res) => {
   }
 };
 
+// const createProduct = async (req, res) => {
+//   const userId = req.user.id;
+//   const files = req.files;
+//   const input = req.body;
+
+//   try {
+//     const data = await productService.createProduct(input, files, userId);
+
+//     res.json(data);
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// };
 const createProduct = async (req, res) => {
-  const userId = req.user.id;
-  const files = req.files;
-  const input = req.body;
-
   try {
-    const data = await productService.createProduct(input, files, userId);
+    console.log("🔥 Hit createProduct route");
 
+    const userId = req.user?.id;
+    const files = req.files;
+    const input = req.body;
+
+    console.log("🧾 User ID:", userId);
+    console.log("📦 Body:", input);
+    console.log("📁 Files:", files);
+
+    if (!files || files.length === 0) {
+      throw new Error("No files received — check FormData and multer setup");
+    }
+
+    // Check if buffer exists
+    if (!files[0].buffer) {
+      throw new Error(
+        "File buffer is missing. Multer memoryStorage may be misconfigured."
+      );
+    }
+
+    const data = await productService.createProduct(input, files, userId);
     res.json(data);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error("❌ createProduct error:", error);
+    res.status(500).send(error.message || "Server error");
   }
 };
 

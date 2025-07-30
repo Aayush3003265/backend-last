@@ -34,6 +34,7 @@ app.use(
 );
 
 app.use(bodyParser.json());
+// app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.set("view engine", "hbs");

@@ -51,6 +51,13 @@ router.get("/:id", getProductById);
  * Create product
  */
 router.post("/", auth, roleBasedAuth(ROLE_MERCHANT), createProduct);
+// router.post(
+//   "/",
+//   auth,
+//   roleBasedAuth(ROLE_MERCHANT),
+//   upload.array("images", 5), // <== this is required to handle multipart/form-data
+//   createProduct
+// );
 
 /**
  * URL: /api/products/:id
