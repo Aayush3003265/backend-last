@@ -16,3 +16,4 @@ async function sendEmail(recipient, { subject, body }) {
 }
 
 export default sendEmail;
+

@@ -26,7 +26,8 @@ const router = express.Router();
  */
 router.get("/", getAllProducts);
 //for rating
-router.post("/:id/rate", rateProduct);
+// router.post("/:id/rate", rateProduct);
+router.post("/:id/rate", auth, rateProduct);
 router.get("/popular", getPopularProducts);
 
 // /api/products/users
@@ -37,6 +38,40 @@ router.get("/brands", getBrands);
 
 router.get("/category/:category", getProductsByCategory);
 router.get("/brand/:brand", getProductsByBrand);
+
+//popular Products
+// GET /api/products/popular
+router.get("/popular", async (req, res) => {
+  try {
+    const products = await Product.find()
+      .select("name imageUrls ratings")
+      .lean(); // lean for plain JS objects
+
+    const result = products
+      .map((p) => {
+        const ratingsCount = p.ratings.length;
+        const averageRating =
+          ratingsCount > 0
+            ? p.ratings.reduce((sum, r) => sum + r.value, 0) / ratingsCount
+            : 0;
+
+        return {
+          _id: p._id,
+          name: p.name,
+          imageUrls: p.imageUrls,
+          averageRating: parseFloat(averageRating.toFixed(1)),
+          ratingsCount,
+        };
+      })
+      .sort((a, b) => b.averageRating - a.averageRating) // sort desc by avg rating
+      .slice(0, 4); // take top 4
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching popular products:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 /**
  * URL: /api/products/:id

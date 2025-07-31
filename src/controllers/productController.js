@@ -151,42 +151,74 @@ const getProductsByBrand = async (req, res) => {
 
   res.json(formattedProducts);
 };
+
 export const rateProduct = async (req, res) => {
-  const { id } = req.params;
-  const { value } = req.body;
-  const userId = req.user.id;
+  try {
+    const { id } = req.params;
+    const { value } = req.body;
+    const userId = req.user.id;
 
-  if (value < 1 || value > 5) {
-    return res.status(400).json({ error: "Rating must be between 1 and 5." });
+    if (value < 1 || value > 5) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5." });
+    }
+
+    const product = await Product.findById(id);
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
+    const existingRating = product.ratings.find(
+      (r) => r.user.toString() === userId
+    );
+
+    if (existingRating) {
+      existingRating.value = value;
+    } else {
+      product.ratings.push({ user: userId, value });
+    }
+
+    await product.save();
+
+    const ratingsCount = product.ratings.length;
+    const averageRating =
+      ratingsCount > 0
+        ? product.ratings.reduce((acc, r) => acc + r.value, 0) / ratingsCount
+        : 0;
+
+    res.status(200).json({
+      message: "Rating submitted",
+      averageRating: parseFloat(averageRating.toFixed(1)),
+      ratingsCount,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  const product = await Product.findById(id);
-
-  const existingRating = product.ratings.find(
-    (r) => r.user.toString() === userId
-  );
-
-  if (existingRating) {
-    existingRating.value = value; // update existing rating
-  } else {
-    product.ratings.push({ user: userId, value }); // add new rating
-  }
-
-  await product.save();
-
-  res.status(200).json({ message: "Rating submitted", product });
 };
-export const getPopularProducts = async (req, res) => {
-  const products = await Product.find().lean();
-  products.sort((a, b) => {
-    const avgA =
-      a.ratings.reduce((acc, r) => acc + r.value, 0) / a.ratings.length || 0;
-    const avgB =
-      b.ratings.reduce((acc, r) => acc + r.value, 0) / b.ratings.length || 0;
-    return avgB - avgA;
-  });
 
-  res.json(products.slice(0, 6)); // Top 6 products
+export const getPopularProducts = async (req, res) => {
+  try {
+    const products = await Product.find().lean();
+
+    const productsWithRatings = products.map((p) => {
+      const ratingsCount = p.ratings.length;
+      const averageRating = ratingsCount
+        ? p.ratings.reduce((acc, r) => acc + r.value, 0) / ratingsCount
+        : 0;
+
+      return {
+        ...p,
+        averageRating: parseFloat(averageRating.toFixed(1)),
+        ratingsCount,
+      };
+    });
+
+    // Sort by averageRating descending
+    productsWithRatings.sort((a, b) => b.averageRating - a.averageRating);
+
+    // Return top 6 popular products
+    res.json(productsWithRatings.slice(0, 6));
+  } catch (error) {
+    console.error("Error fetching popular products:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 import Product from "../models/Product.js";
