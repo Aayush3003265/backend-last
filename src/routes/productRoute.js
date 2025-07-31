@@ -12,102 +12,63 @@ import {
   getBrands,
   rateProduct,
   getPopularProducts,
+  searchProductsByName,
 } from "../controllers/productController.js";
 import auth from "../middlewares/auth.js";
 import roleBasedAuth from "../middlewares/roleBasedAuth.js";
 import { ROLE_ADMIN, ROLE_MERCHANT } from "../constants/roles.js";
+import Product from "../models/Product.js";
 
 const router = express.Router();
 
-/**
- * URL: /api/products
- * Method: GET
- * Get all products
- */
-router.get("/", getAllProducts);
-//for rating
-// router.post("/:id/rate", rateProduct);
-router.post("/:id/rate", auth, rateProduct);
-// router.post("/api/products/:productId/rate", rateProduct);
+// Search and suggestions routes - these should come BEFORE specific routes like /:id
+router.get("/search", searchProductsByName);
+// router.get("/search", searchProducts);
+// backend/routes/productRoutes.js
+// GET /api/products/suggestions?query=phone
+router.get("/suggestions", async (req, res) => {
+  const query = req.query.query;
+  if (!query) return res.json({ products: [] });
 
-router.get("/popular", getPopularProducts);
-
-// /api/products/users
-router.get("/users", auth, getProductsByUser);
-
-router.get("/categories", getCategories);
-router.get("/brands", getBrands);
-
-router.get("/category/:category", getProductsByCategory);
-router.get("/brand/:brand", getProductsByBrand);
-
-//popular Products
-// GET /api/products/popular
-router.get("/popular", async (req, res) => {
   try {
-    const products = await Product.find()
-      .select("name imageUrls ratings")
-      .lean(); // lean for plain JS objects
-
-    const result = products
-      .map((p) => {
-        const ratingsCount = p.ratings.length;
-        const averageRating =
-          ratingsCount > 0
-            ? p.ratings.reduce((sum, r) => sum + r.value, 0) / ratingsCount
-            : 0;
-
-        return {
-          _id: p._id,
-          name: p.name,
-          imageUrls: p.imageUrls,
-          averageRating: parseFloat(averageRating.toFixed(1)),
-          ratingsCount,
-        };
-      })
-      .sort((a, b) => b.averageRating - a.averageRating) // sort desc by avg rating
-      .slice(0, 4); // take top 4
-
-    res.json(result);
-  } catch (error) {
-    console.error("Error fetching popular products:", error);
-    res.status(500).json({ error: "Internal server error" });
+    const regex = new RegExp(query, "i"); // case-insensitive match
+    const products = await Product.find({ name: regex }).limit(5);
+    res.json({ products });
+  } catch (err) {
+    res.status(500).json({ error: "Suggestion fetch failed" });
   }
 });
 
-/**
- * URL: /api/products/:id
- * Method: GET
- * Get product by id
- */
+// Get all products
+router.get("/", getAllProducts);
+
+// Rating route
+router.post("/:id/rate", auth, rateProduct);
+
+// Popular products
+router.get("/popular", getPopularProducts);
+
+// User products
+router.get("/users", auth, getProductsByUser);
+
+// Categories and brands
+router.get("/categories", getCategories);
+router.get("/brands", getBrands);
+
+// Products by category/brand
+router.get("/category/:category", getProductsByCategory);
+router.get("/brand/:brand", getProductsByBrand);
+
+// Get product by ID - this should come after other specific routes
 router.get("/:id", getProductById);
 
-/**
- * URL: /api/products
- * Method: POST
- * Create product
- */
+// Create product
 router.post("/", auth, roleBasedAuth(ROLE_MERCHANT), createProduct);
-// router.post(
-//   "/",
-//   auth,
-//   roleBasedAuth(ROLE_MERCHANT),
-//   upload.array("images", 5), // <== this is required to handle multipart/form-data
-//   createProduct
-// );
 
-/**
- * URL: /api/products/:id
- * Method: PUT
- * Update product
- */
+// Update product
 router.put("/:id", auth, roleBasedAuth(ROLE_MERCHANT), updateProduct);
 
-/**
- * URL: /api/products/:id
- * Method: DELETE
- * Delete product
- */
+// Delete product
 router.delete("/:id", auth, roleBasedAuth(ROLE_ADMIN), deleteProduct);
 
 export default router;
