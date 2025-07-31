@@ -152,43 +152,34 @@ const getProductsByBrand = async (req, res) => {
   res.json(formattedProducts);
 };
 
-export const rateProduct = async (req, res) => {
+// POST /api/products/:id/rate
+const rateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { value } = req.body;
+    const productId = req.params.id;
     const userId = req.user.id;
+    const { value } = req.body;
 
-    if (value < 1 || value > 5) {
-      return res.status(400).json({ error: "Rating must be between 1 and 5." });
+    if (!value || value < 1 || value > 5) {
+      return res.status(400).json({ error: "Invalid rating value" });
     }
 
-    const product = await Product.findById(id);
+    const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ error: "Product not found" });
 
-    const existingRating = product.ratings.find(
-      (r) => r.user.toString() === userId
-    );
+    // Check if user already rated
+    const existing = product.ratings.find((r) => r.user.toString() === userId);
 
-    if (existingRating) {
-      existingRating.value = value;
+    if (existing) {
+      existing.value = value; // update
     } else {
       product.ratings.push({ user: userId, value });
     }
 
     await product.save();
 
-    const ratingsCount = product.ratings.length;
-    const averageRating =
-      ratingsCount > 0
-        ? product.ratings.reduce((acc, r) => acc + r.value, 0) / ratingsCount
-        : 0;
-
-    res.status(200).json({
-      message: "Rating submitted",
-      averageRating: parseFloat(averageRating.toFixed(1)),
-      ratingsCount,
-    });
+    res.status(200).json({ message: "Rating submitted" });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -234,4 +225,5 @@ export {
   getBrands,
   getProductsByCategory,
   getProductsByBrand,
+  rateProduct,
 };

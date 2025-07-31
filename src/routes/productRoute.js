@@ -28,6 +28,8 @@ router.get("/", getAllProducts);
 //for rating
 // router.post("/:id/rate", rateProduct);
 router.post("/:id/rate", auth, rateProduct);
+// router.post("/api/products/:productId/rate", rateProduct);
+
 router.get("/popular", getPopularProducts);
 
 // /api/products/users
