@@ -93,6 +93,7 @@ const checkoutOrder = async (req, res) => {
   const input = req.body;
 
   try {
+    console.log("➡️ Checking out order:", { id, input });
     const order = await orderService.checkoutOrder(id, input);
 
     res.json(order);

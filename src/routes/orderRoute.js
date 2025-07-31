@@ -16,6 +16,31 @@ import {
 
 const router = express.Router();
 
+router.post("/api/khalti/payment-detail", async (req, res) => {
+  const { pidx } = req.body;
+
+  try {
+    const response = await axios.post(
+      "https://a.khalti.com/api/v2/epayment/detail/",
+      { pidx },
+      {
+        headers: {
+          Authorization: `Key ${process.env.KHALTI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error(
+      "❌ Khalti detail error:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Khalti payment detail fetch failed" });
+  }
+});
+
 // /api/orders
 router.get("/", auth, roleBasedAuth(ROLE_ADMIN), getAllOrders);
 
