@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 
-const CLOUDINARY_FOLDER = "nodejs-20250302";
+const CLOUDINARY_FOLDER = "backend";
 
 async function uploadFile(files) {
   const uploadResults = [];
