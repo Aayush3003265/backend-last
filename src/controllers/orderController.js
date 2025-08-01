@@ -1,5 +1,5 @@
 import orderService from "../services/orderService.js";
-
+import Order from "../models/Order.js";
 const getAllOrders = async (req, res) => {
   const orders = await orderService.getAllOrders(req.query);
 
@@ -12,6 +12,33 @@ const getOrdersByUser = async (req, res) => {
   const orders = await orderService.getOrdersByUser(req.query, user.id);
 
   res.json(orders);
+};
+//summary
+const getOrderSummary = async (req, res) => {
+  const user = req.user;
+  const match = {};
+
+  if (user.roles.includes("merchant")) {
+    match.merchantId = user.id;
+  }
+
+  const summary = await Order.aggregate([
+    { $match: match },
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  const result = {
+    pending: 0,
+    confirmed: 0,
+    shipped: 0,
+    delivered: 0,
+  };
+
+  summary.forEach(({ _id, count }) => {
+    if (_id) result[_id.toLowerCase()] = count;
+  });
+
+  res.json(result);
 };
 
 const getOrderById = async (req, res) => {
@@ -127,4 +154,5 @@ export {
   deleteOrder,
   checkoutOrder,
   confirmOrder,
+  getOrderSummary,
 };

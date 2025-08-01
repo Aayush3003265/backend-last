@@ -3,6 +3,7 @@ import express from "express";
 import auth from "../middlewares/auth.js";
 import roleBasedAuth from "../middlewares/roleBasedAuth.js";
 import { ROLE_ADMIN } from "../constants/roles.js";
+import { getOrderSummary } from "../controllers/orderController.js";
 import {
   checkoutOrder,
   confirmOrder,
@@ -43,6 +44,8 @@ router.post("/api/khalti/payment-detail", async (req, res) => {
 
 // /api/orders
 router.get("/", auth, roleBasedAuth(ROLE_ADMIN), getAllOrders);
+
+router.get("/summary", auth, getOrderSummary);
 
 router.get("/user/:userId", auth, getOrdersByUser);
 

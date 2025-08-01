@@ -1,5 +1,9 @@
 import express from "express";
-import { homePage, productByIdPage, productsPage } from "../controllers/viewController.js";
+import {
+  homePage,
+  productByIdPage,
+  productsPage,
+} from "../controllers/viewController.js";
 
 const router = express.Router();
 
