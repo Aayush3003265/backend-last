@@ -12,6 +12,13 @@ export function formatUserData(data) {
 }
 
 export function formatProductData(data) {
+  const ratings = data.ratings || [];
+  const ratingsCount = ratings.length;
+  const averageRating =
+    ratingsCount > 0
+      ? ratings.reduce((sum, r) => sum + r.value, 0) / ratingsCount
+      : 0;
+
   return {
     brand: data.brand,
     category: data.category,
@@ -21,5 +28,7 @@ export function formatProductData(data) {
     imageUrls: data.imageUrls,
     name: data.name,
     price: data.price,
+    ratings,
+    averageRating: parseFloat(averageRating.toFixed(1)),
   };
 }
