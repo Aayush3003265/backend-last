@@ -12,6 +12,7 @@ import orderRoutes from "./routes/orderRoute.js";
 import productRoutes from "./routes/productRoute.js";
 import userRoutes from "./routes/userRoute.js";
 import viewRoutes from "./routes/viewRoute.js";
+import commentRoute from "./routes/commentRoute.js";
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ app.use("/api/users", upload.single("image"), userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/page", viewRoutes);
+app.use("/api/comments", commentRoute);
 
 app.listen(port, () => {
   console.log(`Server started at port ${port}...`);
