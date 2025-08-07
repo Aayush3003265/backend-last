@@ -43,10 +43,10 @@ app.set("view engine", "hbs");
 const port = process.env.PORT || 5000;
 app.get("/", (req, res) => {
   res.json({
-    name: "nodejs-20250302",
+    name: "Ecommerce",
     status: "OK",
     version: "1.1.0",
-    url: "https://node-20250302.vercel.app",
+    url: "vayo",
     port: port,
   });
 });
@@ -55,7 +55,6 @@ app.use("/api/products", upload.array("images", 5), productRoutes);
 app.use("/api/users", upload.single("image"), userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/page", viewRoutes);
 app.use("/api/comments", commentRoute);
 
 app.listen(port, () => {

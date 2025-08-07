@@ -1,7 +1,7 @@
 // const utils = require("./utils");
 
-import { cube } from "./utils.js";
+// import { cube } from "./utils.js";
 
-const result = cube(5);
+// const result = cube(5);
 
-console.log(result);
+// console.log(result);

@@ -1,7 +1,7 @@
 // HTTP module - Server create
 import http from "http";
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Request - User sends/requests to Server
 // Response - Server sends to User
@@ -25,6 +25,7 @@ const app = http.createServer(function (request, response) {
   }
 });
 
+// const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log("Server running at port 5000...");
+  console.log(`Server started at port ${PORT}...`);
 });
