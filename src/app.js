@@ -29,7 +29,7 @@ app.use(logger);
 
 app.use(
   cors({
-    origin: process.env.APP_URL,
+    origin: process.env.APP_URL || "https://frontend-last-blue.vercel.app",
     credentials: true,
   })
 );
