@@ -324,26 +324,26 @@ const searchProducts = async (req, res) => {
     if (brand) query.brand = brand;
     if (minPrice || maxPrice) {
       query.price = {};
-      if (minPrice) query.price.$gte = parseFloat(minPrice);
-      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+      if (minPrice) query.price.$gte = parseFloat(minPrice); //Matches products where price >= maxPrice.
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice); //Matches products where price <= maxPrice.
     }
 
     // Apply sorting
     switch (sortBy) {
       case "price_low":
-        sort = { price: 1 };
+        sort = { price: 1 }; // ascending
         break;
       case "price_high":
-        sort = { price: -1 };
+        sort = { price: -1 }; // descending
         break;
       case "rating":
-        sort = { averageRating: -1 };
+        sort = { averageRating: -1 }; // highest rating first
         break;
       case "newest":
-        sort = { createdAt: -1 };
+        sort = { createdAt: -1 }; // newest products first
         break;
       default:
-        sort = { createdAt: -1 }; // Default sort
+        sort = { createdAt: -1 }; // fallback sorting
     }
 
     const skip = (page - 1) * limit;

@@ -53,4 +53,5 @@ export const negativeWords = [
   "unfair",
   "failure",
   "mediocre",
+  "not",
 ];

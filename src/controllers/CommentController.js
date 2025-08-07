@@ -1,63 +1,38 @@
-// import Sentiment from "sentiment";
+import Sentiment from "sentiment";
 import Comment from "../models/Comment.js";
-import { positiveWords, negativeWords } from "../utils/sentimentWords.js";
+// import { positiveWords, negativeWords } from "../utils/sentimentWords.js";
 
-// const sentiment = new Sentiment();
+const sentiment = new Sentiment();
 
-function analyzeSentiment(text) {
-  const words = text.toLowerCase().split(/\W+/);
-  let score = 0;
+// function analyzeSentiment(text) {
+//   const words = text.toLowerCase().split(/\W+/);
+//   let score = 0;
 
-  words.forEach((word) => {
-    if (positiveWords.includes(word)) score += 1;
-    if (negativeWords.includes(word)) score -= 1;
-  });
+//   words.forEach((word) => {
+//     if (positiveWords.includes(word)) score += 1;
+//     if (negativeWords.includes(word)) score -= 1;
+//   });
 
-  return score;
-}
+//   return score;
+// }
 // ✅ Add new comment with sentiment analysis
-// export const addComment = async (req, res) => {
-//   try {
-//     const { productId, userId, text } = req.body;
-
-//     // Validation check
-//     if (!productId || !userId || !text) {
-//       return res.status(400).json({ message: "Missing required fields." });
-//     }
-
-//     // Log for debugging
-//     console.log("📥 New Comment Data:", { productId, userId, text });
-
-//     // Analyze sentiment score
-//     const result = sentiment.analyze(text);
-//     const sentimentScore = result.score;
-
-//     // Save comment to DB
-//     const comment = await Comment.create({
-//       productId,
-//       userId,
-//       text,
-//       sentimentScore,
-//     });
-
-//     res.status(201).json(comment);
-//   } catch (error) {
-//     console.error("❌ Error in addComment:", error.message);
-//     res
-//       .status(500)
-//       .json({ message: "Failed to add comment", error: error.message });
-//   }
-// };
 export const addComment = async (req, res) => {
   try {
     const { productId, userId, text } = req.body;
 
+    // Validation check
     if (!productId || !userId || !text) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    const sentimentScore = analyzeSentiment(text);
+    // Log for debugging
+    // console.log("📥 New Comment Data:", { productId, userId, text });
 
+    // Analyze sentiment score
+    const result = sentiment.analyze(text);
+    const sentimentScore = result.score;
+
+    // Save comment to DB
     const comment = await Comment.create({
       productId,
       userId,
@@ -68,9 +43,34 @@ export const addComment = async (req, res) => {
     res.status(201).json(comment);
   } catch (error) {
     console.error("❌ Error in addComment:", error.message);
-    res.status(500).json({ message: "Failed to add comment" });
+    res
+      .status(500)
+      .json({ message: "Failed to add comment", error: error.message });
   }
 };
+// export const addComment = async (req, res) => {
+//   try {
+//     const { productId, userId, text } = req.body;
+
+//     if (!productId || !userId || !text) {
+//       return res.status(400).json({ message: "Missing required fields." });
+//     }
+
+//     const sentimentScore = analyzeSentiment(text);
+
+//     const comment = await Comment.create({
+//       productId,
+//       userId,
+//       text,
+//       sentimentScore,
+//     });
+
+//     res.status(201).json(comment);
+//   } catch (error) {
+//     console.error("❌ Error in addComment:", error.message);
+//     res.status(500).json({ message: "Failed to add comment" });
+//   }
+// };
 
 // ✅ Get comments for a product, sorted by sentiment score
 
