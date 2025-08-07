@@ -17,6 +17,10 @@ import commentRoute from "./routes/commentRoute.js";
 dotenv.config();
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://frontend-last-blue.vercel.app",
+];
 
 connectDB();
 connectCloudinary();
@@ -27,9 +31,23 @@ const upload = multer({
 
 app.use(logger);
 
+// app.use(
+//   cors({
+//     // https://frontend-last-blue.vercel.app
+
+//     origin: process.env.APP_URL,
+//     credentials: true,
+//   })
+// );
 app.use(
   cors({
-    origin: process.env.APP_URL || "https://frontend-last-blue.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
