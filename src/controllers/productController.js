@@ -505,6 +505,40 @@ const getProductsByBrand = async (req, res) => {
   res.json(formattedProducts);
 };
 
+// const rateProduct = async (req, res) => {
+//   try {
+//     const productId = req.params.id;
+//     const userId = req.user.id;
+//     const { value } = req.body;
+
+//     if (!value || value < 1 || value > 5) {
+//       return res.status(400).json({ error: "Invalid rating value" });
+//     }
+
+//     const product = await Product.findById(productId);
+//     if (!product) return res.status(404).json({ error: "Product not found" });
+
+//     const existing = product.ratings.find((r) => r.user.toString() === userId);
+
+//     if (existing) {
+//       existing.value = value;
+//     } else {
+//       product.ratings.push({ user: userId, value });
+//     }
+
+//     await product.save();
+
+//     res.status(200).json({ message: "Rating submitted" });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+import Order from "../models/Order.js"; // add this at the top
+
+// import Product from "../models/Product.js";
+// import Order from "../models/Order.js";
+import { ORDER_STATUS_DELIVERED } from "../constants/orderStatus.js";
 const rateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -515,9 +549,23 @@ const rateProduct = async (req, res) => {
       return res.status(400).json({ error: "Invalid rating value" });
     }
 
+    // ✅ Check if user has a delivered order for this product
+    const deliveredOrder = await Order.findOne({
+      user: userId,
+      status: ORDER_STATUS_DELIVERED,
+      "orderItems.product": productId,
+    });
+
+    if (!deliveredOrder) {
+      return res.status(403).json({
+        error: "You can only rate products you have purchased and received.",
+      });
+    }
+
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ error: "Product not found" });
 
+    // Update existing rating or push new
     const existing = product.ratings.find((r) => r.user.toString() === userId);
 
     if (existing) {
