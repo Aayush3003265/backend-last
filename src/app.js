@@ -20,6 +20,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
   "https://frontend-last-blue.vercel.app",
+  "https://frontend-last-nekszdsig-aayushs-projects-a9980c89.vercel.app"
 ];
 
 connectDB();
